@@ -1,0 +1,11 @@
+service_line_code,service_line_name,direct_cost_ratio,is_synthetic_assumption
+ONC,Oncology,0.78,Y
+REN,Renal & Dialysis,0.82,Y
+MAT,Maternity & Women's Health,0.74,Y
+GAS,Gastroenterology & Endoscopy,0.62,Y
+CAR,Cardiology,0.68,Y
+ORT,Orthopaedics & Trauma,0.66,Y
+RES,Respiratory & ENT,0.71,Y
+MHA,Mental Health & Addiction,0.80,Y
+EMR,Emergency Medicine,0.85,Y
+GEN,General Medicine,0.73,Y

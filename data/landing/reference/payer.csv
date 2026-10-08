@@ -1,0 +1,7 @@
+payer_code,payer_name,payer_type,market_share_weight,contractual_discount_rate,mean_days_to_pay,denial_rate,ip_excess_eur,op_excess_eur,is_synthetic_assumption
+VHI,Vhi Healthcare,Insurer,0.48,0.14,28,0.030,75,50,Y
+LAYA,Laya Healthcare,Insurer,0.28,0.12,33,0.035,75,50,Y
+ILH,Irish Life Health,Insurer,0.20,0.13,38,0.040,100,60,Y
+LEVEL,Level Health,Insurer,0.01,0.10,45,0.045,100,60,Y
+RMU,Restricted Membership Undertakings,Insurer,0.03,0.09,50,0.050,50,40,Y
+SELF,Self-pay,Patient,0,0.00,0,0.000,0,0,Y

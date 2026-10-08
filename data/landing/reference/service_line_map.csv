@@ -1,0 +1,51 @@
+priority,keyword,service_line_code,service_line_name
+10,neoplasm,ONC,Oncology
+10,carcinoma,ONC,Oncology
+10,cancer,ONC,Oncology
+10,chemotherapy,ONC,Oncology
+10,oncology,ONC,Oncology
+20,kidney,REN,Renal & Dialysis
+20,renal,REN,Renal & Dialysis
+20,dialysis,REN,Renal & Dialysis
+30,pregnan,MAT,Maternity & Women's Health
+30,prenatal,MAT,Maternity & Women's Health
+30,postnatal,MAT,Maternity & Women's Health
+30,obstetric,MAT,Maternity & Women's Health
+30,miscarriage,MAT,Maternity & Women's Health
+30,gynec,MAT,Maternity & Women's Health
+30,sterilization,MAT,Maternity & Women's Health
+40,colon,GAS,Gastroenterology & Endoscopy
+40,polyp,GAS,Gastroenterology & Endoscopy
+40,bowel,GAS,Gastroenterology & Endoscopy
+40,gastr,GAS,Gastroenterology & Endoscopy
+50,heart,CAR,Cardiology
+50,cardiac,CAR,Cardiology
+50,coronary,CAR,Cardiology
+50,myocardial,CAR,Cardiology
+50,hypertension,CAR,Cardiology
+50,hyperlipidemia,CAR,Cardiology
+50,atrial,CAR,Cardiology
+60,fracture,ORT,Orthopaedics & Trauma
+60,sprain,ORT,Orthopaedics & Trauma
+60,injury,ORT,Orthopaedics & Trauma
+60,laceration,ORT,Orthopaedics & Trauma
+60,burn,ORT,Orthopaedics & Trauma
+60,concussion,ORT,Orthopaedics & Trauma
+60,tendon,ORT,Orthopaedics & Trauma
+60,orthopedic,ORT,Orthopaedics & Trauma
+70,asthma,RES,Respiratory & ENT
+70,bronch,RES,Respiratory & ENT
+70,sinusitis,RES,Respiratory & ENT
+70,pharyngitis,RES,Respiratory & ENT
+70,sore throat,RES,Respiratory & ENT
+70,otitis,RES,Respiratory & ENT
+70,pneumonia,RES,Respiratory & ENT
+70,lung,RES,Respiratory & ENT
+80,drug,MHA,Mental Health & Addiction
+80,overdose,MHA,Mental Health & Addiction
+80,psychiatric,MHA,Mental Health & Addiction
+80,attention deficit,MHA,Mental Health & Addiction
+80,stress disorder,MHA,Mental Health & Addiction
+80,sleep disorder,MHA,Mental Health & Addiction
+5,screening for malignant neoplasm of colon,GAS,Gastroenterology & Endoscopy
+5,colonoscopy,GAS,Gastroenterology & Endoscopy

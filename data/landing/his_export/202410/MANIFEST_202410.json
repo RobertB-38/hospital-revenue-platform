@@ -1,0 +1,21 @@
+{
+  "batch_id": "202410",
+  "source_system": "Simulated hospital information system (synthetic)",
+  "extract_run_utc": "2024-10-01T00:00:00+00:00",
+  "files": [
+    {
+      "file": "PATIENT_202410.csv",
+      "row_count": 198
+    },
+    {
+      "file": "VISIT_202410.csv",
+      "row_count": 2235
+    },
+    {
+      "file": "TXN_202410.csv",
+      "row_count": 14417,
+      "control_total_amount": 262253.04,
+      "control_total_charges": 4630275.34
+    }
+  ]
+}

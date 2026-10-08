@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#444"/>
+    </marker>
+    <style>
+      .box{stroke:#444;stroke-width:1.2;rx:8}
+      .t{font-size:15px;font-weight:600;fill:#1b1b1b}
+      .s{font-size:12px;fill:#333}
+      .h{font-size:13px;font-weight:700;fill:#555;letter-spacing:.5px}
+      .ln{stroke:#444;stroke-width:1.4;fill:none;marker-end:url(#a)}
+      .dash{stroke:#777;stroke-width:1.2;fill:none;stroke-dasharray:5 4;marker-end:url(#a)}
+    </style>
+  </defs>
+  <rect width="1200" height="640" fill="#fff"/>
+  <text x="20" y="32" font-size="20" font-weight="700" fill="#1b1b1b">Ardmore Health · Revenue &amp; Performance Platform (synthetic data)</text>
+
+  <!-- Fabric boundary -->
+  <rect x="200" y="60" width="780" height="430" fill="#f3f8f6" stroke="#2f7d62" stroke-width="1.5" rx="12"/>
+  <text x="215" y="82" class="h">MICROSOFT FABRIC · workspace ardmore-health-dev (trial capacity, North Europe)</text>
+
+  <!-- Source -->
+  <rect x="20" y="150" width="160" height="130" fill="#fff4e5" class="box"/>
+  <text x="32" y="174" class="t">Source export</text>
+  <text x="32" y="196" class="s">Simulated hospital-</text>
+  <text x="32" y="212" class="s">system flat files</text>
+  <text x="32" y="232" class="s">PATIENT · VISIT · TXN</text>
+  <text x="32" y="250" class="s">+ manifest (control</text>
+  <text x="32" y="266" class="s">totals) per month</text>
+
+  <!-- Landing -->
+  <rect x="220" y="150" width="130" height="130" fill="#fff" class="box"/>
+  <text x="232" y="174" class="t">OneLake Files</text>
+  <text x="232" y="196" class="s">landing/his_export/</text>
+  <text x="232" y="212" class="s">  yyyymm/…</text>
+  <text x="232" y="232" class="s">landing/reference/</text>
+  <text x="232" y="248" class="s">payers, sites, budget,</text>
+  <text x="232" y="264" class="s">service-line rules</text>
+
+  <!-- Bronze Silver Gold -->
+  <rect x="375" y="110" width="175" height="70" fill="#f1e3d3" class="box"/>
+  <text x="387" y="134" class="t">Bronze</text>
+  <text x="387" y="154" class="s">as received, all text,</text>
+  <text x="387" y="170" class="s">batch log vs manifest</text>
+  <rect x="375" y="200" width="175" height="80" fill="#e6e9ec" class="box"/>
+  <text x="387" y="224" class="t">Silver</text>
+  <text x="387" y="244" class="s">typed, de-duplicated,</text>
+  <text x="387" y="260" class="s">pseudonymised (SHA-256),</text>
+  <text x="387" y="275" class="s">quarantine + DQ log</text>
+  <rect x="375" y="300" width="175" height="90" fill="#fbf1c7" class="box"/>
+  <text x="387" y="324" class="t">Gold (star)</text>
+  <text x="387" y="344" class="s">5 facts: encounter,</text>
+  <text x="387" y="360" class="s">transaction, debtors,</text>
+  <text x="387" y="376" class="s">budget, forecast + dims</text>
+  <text x="375" y="102" class="s" font-style="italic">Lakehouse lh_hospital (Delta)</text>
+
+  <!-- Pipeline -->
+  <rect x="575" y="110" width="185" height="110" fill="#e3effa" class="box"/>
+  <text x="587" y="134" class="t">pl_daily_load</text>
+  <text x="587" y="154" class="s">daily 06:00 · parameters</text>
+  <text x="587" y="170" class="s">only new batches</text>
+  <text x="587" y="186" class="s">(watermark)</text>
+  <text x="587" y="204" class="s">fail/skip → alert</text>
+
+  <!-- Checks -->
+  <rect x="575" y="240" width="185" height="70" fill="#fde7e7" class="box"/>
+  <text x="587" y="264" class="t">Month-end checks</text>
+  <text x="587" y="284" class="s">reconcile bronze = gold,</text>
+  <text x="587" y="300" class="s">ledger = debtors</text>
+
+  <!-- Warehouse -->
+  <rect x="575" y="330" width="185" height="80" fill="#eee6f6" class="box"/>
+  <text x="587" y="354" class="t" style="font-size:13.5px">Warehouse wh_hospital</text>
+  <text x="587" y="374" class="s">fin.usp_close_month:</text>
+  <text x="587" y="390" class="s">frozen, locked month-end</text>
+  <text x="587" y="404" class="s">P&amp;L, budget, debtors</text>
+
+  <!-- Semantic model -->
+  <rect x="790" y="300" width="170" height="100" fill="#fff" class="box" stroke="#c19a00"/>
+  <text x="802" y="324" class="t">Semantic model</text>
+  <text x="802" y="344" class="s">Direct Lake on gold</text>
+  <text x="802" y="360" class="s">37 DAX measures</text>
+  <text x="802" y="376" class="s">RLS: site roles +</text>
+  <text x="802" y="392" class="s">dynamic by user</text>
+
+  <!-- Report -->
+  <rect x="1000" y="300" width="180" height="100" fill="#fff8d6" class="box"/>
+  <text x="1012" y="324" class="t">Power BI report</text>
+  <text x="1012" y="344" class="s">exec summary, debtors,</text>
+  <text x="1012" y="360" class="s">payer mix, service lines,</text>
+  <text x="1012" y="376" class="s">budget &amp; forecast,</text>
+  <text x="1012" y="392" class="s">throughput, close status</text>
+
+  <!-- Alert -->
+  <rect x="1000" y="110" width="180" height="70" fill="#fff" class="box"/>
+  <text x="1012" y="134" class="t">Failure alert</text>
+  <text x="1012" y="154" class="s">push notification</text><text x="1012" y="170" class="s">(Outlook/Teams in prod)</text>
+
+  <!-- DevOps -->
+  <rect x="200" y="510" width="980" height="110" fill="#eaf1fb" stroke="#1f5fbf" stroke-width="1.5" rx="12"/>
+  <text x="215" y="532" class="h">AZURE DEVOPS · fabricdemo0181 / ardmore-health-demo</text>
+  <text x="215" y="556" class="s">Repo: generator, notebooks, Warehouse SQL, semantic-model spec, docs, tests</text>
+  <text x="215" y="576" class="s">YAML CI on every push and pull request: T-SQL parse · notebooks in sync · model checks · SQL data-quality rules (DuckDB)</text>
+  <text x="215" y="596" class="s">Branch policy on main: pull request + 1 reviewer + CI must pass · Fabric workspace Git integration (branch fabric-workspace)</text>
+
+  <!-- Arrows -->
+  <path class="ln" d="M180,215 L218,215"/>
+  <path class="ln" d="M350,190 L373,150"/>
+  <path class="ln" d="M462,180 L462,198"/>
+  <path class="ln" d="M462,280 L462,298"/>
+  <path class="ln" d="M550,330 L573,285"/>
+  <path class="ln" d="M667,310 L667,328"/>
+  <path class="ln" d="M462,390 L462,450 L875,450 L875,402"/>
+  <text x="600" y="466" class="s" font-style="italic">Direct Lake reads the gold Delta tables</text>
+  <path class="ln" d="M960,350 L998,350"/>
+  <path class="dash" d="M575,150 L552,150"/>
+  <path class="dash" d="M760,150 L998,145"/>
+  <text x="840" y="138" class="s">on failure</text>
+  <path class="dash" d="M300,510 L300,492"/>
+  <text x="215" y="480" class="s" font-style="italic">pipeline: bronze → silver → gold → checks → close</text>
+  <text x="310" y="505" class="s">CI/CD + Git sync</text>
+</svg>

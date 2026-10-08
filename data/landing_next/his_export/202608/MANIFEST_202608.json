@@ -1,0 +1,21 @@
+{
+  "batch_id": "202608",
+  "source_system": "Simulated hospital information system (synthetic)",
+  "extract_run_utc": "2026-08-01T00:00:00+00:00",
+  "files": [
+    {
+      "file": "PATIENT_202608.csv",
+      "row_count": 42
+    },
+    {
+      "file": "VISIT_202608.csv",
+      "row_count": 1960
+    },
+    {
+      "file": "TXN_202608.csv",
+      "row_count": 13038,
+      "control_total_amount": 974800.72,
+      "control_total_charges": 4727572.26
+    }
+  ]
+}

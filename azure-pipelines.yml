@@ -1,0 +1,38 @@
+# Azure DevOps CI: runs on every push to main and on every pull request into main.
+# What it proves on each commit:
+#   1. the Warehouse T-SQL still parses
+#   2. the Fabric notebooks (.ipynb) are in sync with their .py sources
+#   3. the semantic-model definition is consistent (measures, relationships, roles)
+#   4. the SQL data-quality rules pass on the landing export (tests/sql/*.sql)
+# Branch policy on main requires this pipeline to pass before a pull request can be merged.
+
+trigger:
+  branches:
+    include: [main]
+
+pr:
+  branches:
+    include: [main]
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.11'
+    displayName: Use Python 3.11
+
+  - script: python -m pip install --upgrade pip && pip install -r requirements-ci.txt
+    displayName: Install test tools
+
+  - script: python -m pytest tests -v --junitxml=test-results.xml
+    displayName: Run data-quality, model and build tests
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: test-results.xml
+      testRunTitle: Data quality and build checks
+    displayName: Publish test results
