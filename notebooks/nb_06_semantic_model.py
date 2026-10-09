@@ -28,8 +28,29 @@ import sempy_labs as labs
 from sempy_labs import directlake
 from sempy_labs.tom import connect_semantic_model
 
-directlake.generate_direct_lake_semantic_model(
-    dataset=MODEL_NAME, lakehouse_tables=TABLES, lakehouse=LAKEHOUSE, overwrite=True, refresh=False)
+import inspect
+
+# semantic-link-labs renames arguments between versions, so match the installed version's names
+fn = directlake.generate_direct_lake_semantic_model
+params = inspect.signature(fn).parameters
+print("Installed signature:", inspect.signature(fn))
+kw = {}
+for name in ("dataset", "name"):
+    if name in params:
+        kw[name] = MODEL_NAME
+        break
+for name in ("tables", "lakehouse_tables"):
+    if name in params:
+        kw[name] = TABLES
+        break
+for name in ("lakehouse", "source"):
+    if name in params:
+        kw[name] = LAKEHOUSE
+        break
+for name, value in (("overwrite", True), ("refresh", False)):
+    if name in params:
+        kw[name] = value
+fn(**kw)
 print("Model created:", MODEL_NAME)
 
 # %%
