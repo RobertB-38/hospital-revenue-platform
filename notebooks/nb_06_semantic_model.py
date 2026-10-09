@@ -18,7 +18,7 @@
 {"defaultLakehouse": {"name": "lh_hospital"}}
 
 # %%
-%pip install -q semantic-link-labs
+%pip install -q semantic-link-labs==0.17.1
 
 # %%
 # <<MODEL_SPEC>>
@@ -28,29 +28,19 @@ import sempy_labs as labs
 from sempy_labs import directlake
 from sempy_labs.tom import connect_semantic_model
 
-import inspect
+# Lakehouses created with "schemas" switched on keep tables under Tables/dbo/.
+# Detect that, and pass schema-qualified names ("dbo.gold_dim_date") when it applies.
+prefix = "dbo." if notebookutils.fs.exists("Tables/dbo") else ""
+print("Table prefix used:", repr(prefix))
 
-# semantic-link-labs renames arguments between versions, so match the installed version's names
-fn = directlake.generate_direct_lake_semantic_model
-params = inspect.signature(fn).parameters
-print("Installed signature:", inspect.signature(fn))
-kw = {}
-for name in ("dataset", "name"):
-    if name in params:
-        kw[name] = MODEL_NAME
-        break
-for name in ("tables", "lakehouse_tables"):
-    if name in params:
-        kw[name] = TABLES
-        break
-for name in ("lakehouse", "source"):
-    if name in params:
-        kw[name] = LAKEHOUSE
-        break
-for name, value in (("overwrite", True), ("refresh", False)):
-    if name in params:
-        kw[name] = value
-fn(**kw)
+directlake.generate_direct_lake_semantic_model(
+    dataset=MODEL_NAME,
+    tables=[f"{prefix}{t}" for t in TABLES],
+    source=LAKEHOUSE,
+    source_type="Lakehouse",
+    overwrite=True,
+    refresh=False,
+)
 print("Model created:", MODEL_NAME)
 
 # %%
