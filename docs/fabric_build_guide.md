@@ -105,8 +105,8 @@ the same from `Silver conform` to `Gold model`, and from `Gold model` to `Month-
 
 **5c. Forecast.** Add a fifth Notebook activity `Forecast` → `nb_05_forecast`. Connect `Gold model` → (green tick) → `Forecast`.
 
-**5d. Close the month only if the checks pass.** Activities → **If Condition** → name `Checks passed?`.
-Connect `Month-end checks` → (green tick) → `Checks passed?`. In its **Activities** tab, Expression:
+**5d. Close the month only if the checks pass.** Activities → **If Condition** → name `Checks passed` (no question mark: not allowed in activity names).(no `?`: it is not allowed in activity names).
+Connect `Month-end checks` → (green tick) → `Checks passed`. In its **Activities** tab, Expression:
 ```
 @equals(json(activity('Month-end checks').output.result.exitValue).status, 'PASS')
 ```
@@ -132,8 +132,8 @@ hospital tenant you would swap this one activity for the Office 365 Outlook or T
 3. Connect `Month-end checks` → `Alert on failure` **twice**: once with the red cross (**On fail**) and once with the grey arrow (**On skip**).
    Two conditions from the same activity mean *fail OR skip*. Because a failure anywhere earlier skips
    `Month-end checks`, this one alert covers every notebook.
-4. Inside `Checks passed?` → **False** → add another Web activity with the same connection and body
-   `Month-end checks FAILED - month not closed.`
+4. Inside `Checks passed` → **False** → add another Web activity named `Alert checks failed` (names must be unique) with the
+   same connection and body `Month-end checks FAILED - month not closed.`
 
 **5f. Save and test.** Ribbon → **Save** → **Run**. Watch the **Output** tab: every activity should go green
 and `Close month` should run. Test the alert: run again with `p_batch_id` = `209901` (a folder that does not exist).
@@ -188,6 +188,8 @@ Open the semantic model → **Create report** → **Create from scratch**. Build
 the password. On your Mac, open **Terminal**:
 ```bash
 cd ~/Desktop/PROJECTs/hospital-revenue-platform
+git add -A
+git commit -m "Add screenshots and checklist"
 git remote add origin https://fabricdemo0181@dev.azure.com/fabricdemo0181/ardmore-health-demo/_git/ardmore-health-demo
 git push -u origin main
 ```
@@ -213,11 +215,7 @@ Now `main` only changes through a pull request that passes the tests.
 `ardmore-health-demo` → branch **create new** `fabric-workspace` → folder `fabric` → **Connect and sync**.
 Fabric commits the definitions of your notebooks, pipeline and semantic model into that branch.
 
-## Step 11 · Screenshots to keep (the trial ends after 60 days)
+## Step 11 · Screenshots (the trial ends after 60 days)
 
-Save these in `docs/screenshots/`:
-1. Workspace with all items · 2. Lakehouse tables list (bronze/silver/gold) · 3. Pipeline canvas ·
-4. Successful pipeline run · 5. Incremental exit value (Step 6) · 6. Failure alert on your phone ·
-7. Month-end checks table · 8. `fin.vw_close_status` · 9. Semantic model diagram + "Direct Lake" ·
-10. Each report page · 11. RLS test as `Site - Galway` · 12. DevOps pipeline with 46 tests passed ·
-13. Branch policies page.
+Save every screenshot in `docs/screenshots/` with exactly these names. The full checklist, with when to take
+each one, is in `docs/screenshots/README.md`.
