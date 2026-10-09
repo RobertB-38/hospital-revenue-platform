@@ -105,7 +105,7 @@ the same from `Silver conform` to `Gold model`, and from `Gold model` to `Month-
 
 **5c. Forecast.** Add a fifth Notebook activity `Forecast` → `nb_05_forecast`. Connect `Gold model` → (green tick) → `Forecast`.
 
-**5d. Close the month only if the checks pass.** Activities → **If Condition** → name `Checks passed` (no question mark: not allowed in activity names).(no `?`: it is not allowed in activity names).
+**5d. Close the month only if the checks pass.** Activities → **If Condition** → name `Checks passed` (no `?`: it is not allowed in activity names).
 Connect `Month-end checks` → (green tick) → `Checks passed`. In its **Activities** tab, Expression:
 ```
 @equals(json(activity('Month-end checks').output.result.exitValue).status, 'PASS')
