@@ -146,6 +146,9 @@ def run(nb: str, spark, overrides: dict):
             continue
         if body.strip().startswith("%%configure"):
             continue
+        if "refreshMetadata" in body:      # Fabric REST call (SQL endpoint sync) - nothing to sync locally
+            print("skipped: SQL endpoint sync (Fabric only)")
+            continue
         body = "\n".join(l for l in body.splitlines() if not l.strip().startswith("%pip"))
         try:
             exec(compile(body, str(path), "exec"), g)

@@ -2,7 +2,7 @@
 # # 04 · Month-end reconciliation checks
 #
 # Runs before the month-end pack is released. Each check compares two numbers that **must** agree.
-# A `FAIL` stops the pipeline, so the month is not closed in the Warehouse and the alert e-mail goes out.
+# A `FAIL` stops the pipeline, so the month is not closed in the Warehouse and the phone alert goes out.
 # A `WARN` is reported but does not block the close.
 #
 # | Check | Rule |
@@ -114,6 +114,51 @@ if spark.catalog.tableExists("gold_monthend_check"):
 df.write.format("delta").mode("append").saveAsTable("gold_monthend_check")
 display(df)
 
+# %% [markdown]
+# ## Make the Warehouse see today's tables before the close
+# The Warehouse close procedure reads the gold tables through the lakehouse SQL analytics endpoint.
+# That endpoint copies new table versions with a delay (often more than a minute after a big rewrite).
+# Without this step the close can run against old data and stop with "No month-end checks found".
+# Here we ask Fabric to sync the endpoint now (REST API: sqlEndpoints/refreshMetadata) and wait for it.
+
+# %%
+import time
+import requests
+import sempy.fabric as fabric
+
+API = "https://api.fabric.microsoft.com/v1"
+hdr = {"Authorization": "Bearer " + notebookutils.credentials.getToken("https://api.fabric.microsoft.com")}
+ws_id = fabric.get_workspace_id()
+
+eps = requests.get(f"{API}/workspaces/{ws_id}/sqlEndpoints", headers=hdr, timeout=60)
+eps.raise_for_status()
+ep_id = next(e["id"] for e in eps.json()["value"] if e["displayName"] == "lh_hospital")
+
+r = requests.post(f"{API}/workspaces/{ws_id}/sqlEndpoints/{ep_id}/refreshMetadata", headers=hdr,
+                  json={"timeout": {"timeUnit": "Minutes", "value": 10}}, timeout=660)
+if r.status_code == 202:                      # long-running: poll until finished, then read the result
+    op_url = r.headers["Location"]
+    wait_s = int(r.headers.get("Retry-After", 10))
+    while True:
+        time.sleep(wait_s)
+        s = requests.get(op_url, headers=hdr, timeout=60)
+        s.raise_for_status()
+        state = s.json().get("status")
+        if state in ("Succeeded", "Failed"):
+            break
+        wait_s = int(s.headers.get("Retry-After", wait_s))
+    if state == "Failed":
+        raise RuntimeError(f"SQL endpoint sync failed: {s.text}")
+    r = requests.get(op_url.rstrip("/") + "/result", headers=hdr, timeout=60)
+r.raise_for_status()
+
+tables = r.json().get("value", [])
+failed = [t["tableName"] for t in tables if t.get("status") == "Failure"]
+print(f"SQL endpoint sync done: {len(tables)} tables checked, failed: {failed or 'none'}")
+if any("gold_" in name for name in failed):
+    raise RuntimeError(f"Gold tables did not sync to the SQL endpoint: {failed}")
+
+# %%
 overall = "FAIL" if any(r[6] == "FAIL" for r in results) else "PASS"
 print("Overall:", overall)
 notebookutils.notebook.exit(json.dumps({"period_end": period_end, "status": overall}))
