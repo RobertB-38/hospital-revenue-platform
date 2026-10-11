@@ -86,10 +86,10 @@
   <!-- Report -->
   <rect x="1000" y="300" width="180" height="100" fill="#fff8d6" class="box"/>
   <text x="1012" y="324" class="t">Power BI report</text>
-  <text x="1012" y="344" class="s">exec summary, debtors,</text>
-  <text x="1012" y="360" class="s">payer mix, service lines,</text>
-  <text x="1012" y="376" class="s">budget &amp; forecast,</text>
-  <text x="1012" y="392" class="s">throughput, close status</text>
+  <text x="1012" y="344" class="s">built: exec summary,</text>
+  <text x="1012" y="360" class="s">revenue trend</text>
+  <text x="1012" y="376" class="s">designed, not built yet:</text>
+  <text x="1012" y="392" class="s">5 more pages</text>
 
   <!-- Alert -->
   <rect x="1000" y="110" width="180" height="70" fill="#fff" class="box"/>
@@ -101,7 +101,7 @@
   <text x="215" y="532" class="h">AZURE DEVOPS · fabricdemo0181 / ardmore-health-demo</text>
   <text x="215" y="556" class="s">Repo: generator, notebooks, Warehouse SQL, semantic-model spec, docs, tests</text>
   <text x="215" y="576" class="s">YAML CI on every push and pull request: T-SQL parse · notebooks in sync · model checks · SQL data-quality rules (DuckDB)</text>
-  <text x="215" y="596" class="s">Branch policy on main: pull request + 1 reviewer + CI must pass · Fabric workspace Git integration (branch fabric-workspace)</text>
+  <text x="215" y="596" class="s">Branch policy on main: pull request + CI must pass + 1 approval (self-approved, solo project) · Fabric Git integration not set up yet</text>
 
   <!-- Arrows -->
   <path class="ln" d="M180,215 L218,215"/>
@@ -118,5 +118,5 @@
   <text x="840" y="138" class="s">on failure</text>
   <path class="dash" d="M300,510 L300,492"/>
   <text x="215" y="480" class="s" font-style="italic">pipeline: bronze → silver → gold → checks → close</text>
-  <text x="310" y="505" class="s">CI/CD + Git sync</text>
+  <text x="310" y="505" class="s">CI/CD</text>
 </svg>
