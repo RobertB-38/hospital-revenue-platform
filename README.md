@@ -32,7 +32,7 @@ joins them in Excel and they rarely match. Here both come from one pipeline, and
 | Semantic model | Direct Lake, 14 tables, 23 relationships, 37 DAX measures, 5 security roles. Built from code. | `semantic_model/`, `nb_06` |
 | Report | Executive summary and revenue trend pages. | `docs/report_pages.md` |
 | Pipeline | `pl_daily_load`: parameters, retries, a condition that only closes the month if checks pass, a phone alert on failure, daily at 06:00. | `docs/fabric_build_guide.md` |
-| Tests | 46 tests: SQL data quality rules in DuckDB, manifest checks, a check that no personal data reaches silver, T-SQL parsing. They run in Azure DevOps on every push to main, and a branch policy means main only changes through a reviewed pull request that passes them. | `tests/`, `azure-pipelines.yml` |
+| Tests | 46 tests: SQL data quality rules in DuckDB, manifest checks, a check that no personal data reaches silver, T-SQL parsing. They run in Azure DevOps on every push to main, and a branch policy means main only changes through a pull request that passes them. | `tests/`, `azure-pipelines.yml` |
 | Documents | Data dictionary, GDPR and HIQA note, runbook, architecture, build guide. | `docs/` |
 
 ## What I tested
@@ -46,14 +46,17 @@ joins them in Excel and they rarely match. Here both come from one pipeline, and
 - The daily 06:00 schedule. ([screenshot](docs/screenshots/12_pipeline_schedule.png))
 - The 46 tests in Azure DevOps. A push to main started the pipeline by itself and all 46 passed.
   ([tests](docs/screenshots/24_devops_tests_passed.png), [run](docs/screenshots/24b_devops_run_summary.png))
-- A branch policy on main: one reviewer and a passing test run before any change is merged.
+- A branch policy on main: a pull request needs a passing test run and one approval before it is merged.
+  This is a solo project, so I approve my own pull requests. In a team the approver would be someone else.
+  The test run is the check that actually blocks a bad change here.
   ([policy](docs/screenshots/25_devops_branch_policy.png), [a pull request that went through it](docs/screenshots/26_devops_pull_request.png))
 
 ## Results on the synthetic data (January 2024 to September 2026)
 
 | Measure | Value |
 |---|---|
-| Patients / visits / ledger postings | 5,179 / 68,453 / 436,005 |
+| Rows in the export files (patients / visits / ledger postings) | 5,179 / 69,117 / 436,876 |
+| After silver removes re-sent visits and duplicate postings | 5,179 / 68,453 / 436,005 |
 | Inpatient stays, average length of stay | 1,281 stays, 5.1 nights |
 | Net revenue | about €4m a month, €48m a year |
 | September 2026 | budget variance -6.8%, contribution margin 13.3%, debtor days 47 |
@@ -123,7 +126,7 @@ All of them are in [docs/screenshots](docs/screenshots/README.md).
 | ![DevOps tests](docs/screenshots/24_devops_tests_passed.png) | ![DevOps run](docs/screenshots/24b_devops_run_summary.png) |
 | Tests in Azure DevOps | Green pipeline run, started by a push |
 | ![Branch policy](docs/screenshots/25_devops_branch_policy.png) | ![Pull request](docs/screenshots/26_devops_pull_request.png) |
-| Branch policy on main | Pull request merged after the tests passed |
+| Branch policy on main | Pull request merged after the tests passed (self-approved, solo project) |
 
 ## Data sources and licences
 
