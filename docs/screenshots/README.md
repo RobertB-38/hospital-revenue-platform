@@ -23,4 +23,5 @@ Taken in my Microsoft Fabric trial workspace in October 2026. All data shown is 
 | `17_report_executive_summary.png` | Report page 1, September 2026 |
 | `18_report_revenue_trend.png` | Report page 2, net revenue against budget |
 | `24_devops_tests_passed.png` | Azure DevOps: 46 of 46 tests passed |
-| `24b_devops_run_summary.png` | Azure DevOps: the green pipeline run on commit 825f9f7 |
+| `24b_devops_run_summary.png` | Azure DevOps: green run started automatically by a push (Individual CI) |
+| `25_devops_branch_policy.png` | Branch policy on main: 1 reviewer and the test pipeline required |

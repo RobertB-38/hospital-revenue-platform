@@ -32,7 +32,7 @@ joins them in Excel and they rarely match. Here both come from one pipeline, and
 | Semantic model | Direct Lake, 14 tables, 23 relationships, 37 DAX measures, 5 security roles. Built from code. | `semantic_model/`, `nb_06` |
 | Report | Executive summary and revenue trend pages. | `docs/report_pages.md` |
 | Pipeline | `pl_daily_load`: parameters, retries, a condition that only closes the month if checks pass, a phone alert on failure, daily at 06:00. | `docs/fabric_build_guide.md` |
-| Tests | 46 tests: SQL data quality rules in DuckDB, manifest checks, a check that no personal data reaches silver, T-SQL parsing. They run in Azure DevOps on every push to main. | `tests/`, `azure-pipelines.yml` |
+| Tests | 46 tests: SQL data quality rules in DuckDB, manifest checks, a check that no personal data reaches silver, T-SQL parsing. They run in Azure DevOps on every push to main, and a branch policy means main only changes through a reviewed pull request that passes them. | `tests/`, `azure-pipelines.yml` |
 | Documents | Data dictionary, GDPR and HIQA note, runbook, architecture, build guide. | `docs/` |
 
 ## What I tested
@@ -44,8 +44,10 @@ joins them in Excel and they rarely match. Here both come from one pipeline, and
   ([screenshot](docs/screenshots/13_incremental_load.png))
 - September 2026 then closed automatically next to June. ([screenshot](docs/screenshots/14_close_status_september.png))
 - The daily 06:00 schedule. ([screenshot](docs/screenshots/12_pipeline_schedule.png))
-- The 46 tests in Azure DevOps. The pipeline ran green on commit `825f9f7` with all 46 passing.
+- The 46 tests in Azure DevOps. A push to main started the pipeline by itself and all 46 passed.
   ([tests](docs/screenshots/24_devops_tests_passed.png), [run](docs/screenshots/24b_devops_run_summary.png))
+- A branch policy on main: one reviewer and a passing test run before any change is merged.
+  ([screenshot](docs/screenshots/25_devops_branch_policy.png))
 
 ## Results on the synthetic data (January 2024 to September 2026)
 
@@ -79,7 +81,6 @@ More detail is in [the runbook](docs/runbook.md).
 
 - Report pages 2 to 7 (debtors, payer mix, service lines, budget and forecast, throughput, month-end control).
   They are designed in `docs/report_pages.md` and the measures exist.
-- A branch policy on main so changes can only arrive through a pull request that passes the tests.
 - Fabric Git integration.
 - Copilot. It is not available on trial capacities. My notes on where I would and would not use it are in
   `docs/copilot_answer.md`.
@@ -120,7 +121,9 @@ All of them are in [docs/screenshots](docs/screenshots/README.md).
 | ![Semantic model](docs/screenshots/07_semantic_model_direct_lake.png) | ![Revenue trend](docs/screenshots/18_report_revenue_trend.png) |
 | Semantic model | Revenue against budget |
 | ![DevOps tests](docs/screenshots/24_devops_tests_passed.png) | ![DevOps run](docs/screenshots/24b_devops_run_summary.png) |
-| Tests in Azure DevOps | Green pipeline run |
+| Tests in Azure DevOps | Green pipeline run, started by a push |
+| ![Branch policy](docs/screenshots/25_devops_branch_policy.png) | |
+| Branch policy on main | |
 
 ## Data sources and licences
 
