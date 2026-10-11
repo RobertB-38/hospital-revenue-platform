@@ -25,3 +25,4 @@ Taken in my Microsoft Fabric trial workspace in October 2026. All data shown is 
 | `24_devops_tests_passed.png` | Azure DevOps: 46 of 46 tests passed |
 | `24b_devops_run_summary.png` | Azure DevOps: green run started automatically by a push (Individual CI) |
 | `25_devops_branch_policy.png` | Branch policy on main: 1 reviewer and the test pipeline required |
+| `26_devops_pull_request.png` | Pull request 1, merged after the required test run passed and a reviewer approved |
