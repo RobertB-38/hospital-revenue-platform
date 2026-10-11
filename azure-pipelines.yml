@@ -4,7 +4,7 @@
 #   2. the Fabric notebooks (.ipynb) are in sync with their .py sources
 #   3. the semantic-model definition is consistent (measures, relationships, roles)
 #   4. the SQL data-quality rules pass on the landing export (tests/sql/*.sql)
-# Branch policy on main requires this pipeline to pass before a pull request can be merged.
+# Planned, not set up yet: a branch policy on main that requires this pipeline to pass before a pull request can be merged.
 
 trigger:
   branches:

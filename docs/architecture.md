@@ -39,7 +39,7 @@
 | Debtors as a month-end snapshot | Balances are semi-additive: you report the balance at a date, never a sum over months. The `Debtors Balance` measure enforces this. |
 | Lakehouse for engineering, Warehouse for the close | Gold is rebuilt daily (live view). Finance needs a frozen, locked month-end record they can audit in T-SQL. |
 | Direct Lake | Reads the Delta tables directly: no import refresh to schedule, no data copied into the model. |
-| Model defined in code (`model_spec.py`) | Measures and roles are versioned, reviewed in pull requests and tested in CI. |
+| Model defined in code (`model_spec.py`) | Measures and roles are versioned in Git and checked by the test suite. |
 
 ## Synthetic data: what is real and what is invented
 
