@@ -47,7 +47,7 @@ joins them in Excel and they rarely match. Here both come from one pipeline, and
 - The 46 tests in Azure DevOps. A push to main started the pipeline by itself and all 46 passed.
   ([tests](docs/screenshots/24_devops_tests_passed.png), [run](docs/screenshots/24b_devops_run_summary.png))
 - A branch policy on main: one reviewer and a passing test run before any change is merged.
-  ([screenshot](docs/screenshots/25_devops_branch_policy.png))
+  ([policy](docs/screenshots/25_devops_branch_policy.png), [a pull request that went through it](docs/screenshots/26_devops_pull_request.png))
 
 ## Results on the synthetic data (January 2024 to September 2026)
 
@@ -122,8 +122,8 @@ All of them are in [docs/screenshots](docs/screenshots/README.md).
 | Semantic model | Revenue against budget |
 | ![DevOps tests](docs/screenshots/24_devops_tests_passed.png) | ![DevOps run](docs/screenshots/24b_devops_run_summary.png) |
 | Tests in Azure DevOps | Green pipeline run, started by a push |
-| ![Branch policy](docs/screenshots/25_devops_branch_policy.png) | |
-| Branch policy on main | |
+| ![Branch policy](docs/screenshots/25_devops_branch_policy.png) | ![Pull request](docs/screenshots/26_devops_pull_request.png) |
+| Branch policy on main | Pull request merged after the tests passed |
 
 ## Data sources and licences
 
