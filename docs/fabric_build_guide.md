@@ -59,6 +59,8 @@ Things that can happen and are normal:
 - The first run says **"Starting Spark session"** for 1–3 minutes. That is the trial capacity warming up.
 - After `%%configure` the session restarts once. That is expected.
 - If a notebook stops with `table or view not found: bronze_visit`, an earlier notebook did not finish. Run the earlier one again.
+- Error **430 TooManyRequestsForCapacity**: the trial capacity is full. Stop the session in every open notebook
+  (square icon at the top), close the tabs, and run again.
 
 ## Step 4 · Set up the Warehouse (10 min)
 
@@ -98,15 +100,24 @@ set **General → Name** and **Settings → Workspace / Notebook**:
 | `Gold model` | `nb_03_gold_model` | none |
 | `Month-end checks` | `nb_04_monthend_checks` | `period_end` String `@pipeline().parameters.p_period_end` |
 
-To type an expression, click the value box → **Add dynamic content** → paste → **OK**.
+To type an expression, click the value box → **Add dynamic content** → paste → **OK**. The box turns green.
+If it stays white, Fabric reads your expression as plain text and the run fails later.
+
+On **each** notebook activity also set **General → Retry = 3** and **Retry interval = 180** seconds. On the trial
+capacity a notebook that starts straight after another one often fails in about 20 seconds because the previous
+Spark session has not handed back its cores yet. The retry three minutes later works. Without it the pipeline fails
+at random steps.
 
 Connect them: drag the **green tick** (On success) on the right edge of `Bronze ingest` onto `Silver conform`;
 the same from `Silver conform` to `Gold model`, and from `Gold model` to `Month-end checks`.
 
-**5c. Forecast.** Add a fifth Notebook activity `Forecast` → `nb_05_forecast`. Connect `Gold model` → (green tick) → `Forecast`.
+**5c. Forecast.** Add a fifth Notebook activity `Forecast` → `nb_05_forecast`. Connect it after `Checks passed`
+(next step) with the green tick, so the forecast only runs once the month is checked.
 
 **5d. Close the month only if the checks pass.** Activities → **If Condition** → name `Checks passed` (no `?`: it is not allowed in activity names).
-Connect `Month-end checks` → (green tick) → `Checks passed`. In its **Activities** tab, Expression:
+Connect `Month-end checks` → (green tick) → `Checks passed`. In its **Activities** tab, click the Expression box →
+**Add dynamic content** → paste this → **OK** (the box must turn green, otherwise the run fails with
+*"The function 'bool' was invoked with a parameter that is not valid"*):
 ```
 @equals(json(activity('Month-end checks').output.result.exitValue).status, 'PASS')
 ```
@@ -126,9 +137,12 @@ hospital tenant you would swap this one activity for the Office 365 Outlook or T
 
 1. On your phone, install the **ntfy** app → **+** → subscribe to a topic with a long random name, e.g. `ardmore-bi-7f3k9q2x`.
 2. In the pipeline: Activities → **Web** → name `Alert on failure`. Settings:
-   - Connection: **+ New** → URL `https://ntfy.sh` → Authentication **Anonymous** → **Create**.
+   - Connection: open the dropdown → **+ New** → **Web v2** → Base URL `https://ntfy.sh` → name `ntfy-alerts` →
+     Authentication **Anonymous** → **Connect**. Pick the connection from the dropdown. Do not type the URL into the
+     box: then it turns green and the run fails with *"Invalid datasourceObjectId: https://ntfy.sh"*.
    - Relative URL: `ardmore-bi-7f3k9q2x` (your topic) · Method: **POST**
-   - Body: `@concat('pl_daily_load FAILED. Run ', pipeline().RunId, '. Open Monitor in Fabric.')`
+   - Body: `@concat('pl_daily_load FAILED. Run ', pipeline().RunId)`
+   - Headers: `Content-Type` = `text/plain`
 3. Connect `Month-end checks` → `Alert on failure` **twice**: once with the red cross (**On fail**) and once with the grey arrow (**On skip**).
    Two conditions from the same activity mean *fail OR skip*. Because a failure anywhere earlier skips
    `Month-end checks`, this one alert covers every notebook.
@@ -139,16 +153,26 @@ hospital tenant you would swap this one activity for the Office 365 Outlook or T
 and `Close month` should run. Test the alert: run again with `p_batch_id` = `209901` (a folder that does not exist).
 `Bronze ingest` fails, and your phone should buzz.
 
-**5g. Schedule.** Ribbon → **Schedule** → On → Repeat **Daily** → time **06:00** → time zone **Dublin** → **Apply**.
+After the failure test, set the `p_batch_id` default back to `auto` (Parameters tab) and **Save**. Otherwise the
+scheduled run uses `209901` and fails every morning.
+
+**5g. Schedule.** Ribbon → **Schedule** → **Add schedule** → type **Fixed** (not Interval-based) → Repeat **Daily** →
+time **06:00 AM** → time zone **(UTC) Dublin** → **Save**. Leave the Parameters section empty, so the schedule uses
+the pipeline defaults. (Its parameter rows only accept workspace variables.) Runs on a trial capacity cost nothing.
 
 ## Step 6 · Prove the incremental load (5 min)
 
-1. In `lh_hospital` → Files → `landing` → `his_export` → **…** → **Upload** → **Upload folder** → choose
-   `data/landing_next/his_export/202607` on your Mac. Repeat for `202608` and `202609`.
+1. Upload `data/landing_next.zip` to the root of `lh_hospital` → **Files**. Open `nb_00_unzip_upload`, set
+   `zip_name = "landing_next.zip"`, **Run all**. It ends with `202401 .. 202609 (33)`. Stop the session.
 2. Open `pl_daily_load` → **Run** (keep both parameters `auto`).
 3. In the run output, open the `Bronze ingest` activity → **Output** → the exit value lists **only**
    `202607`, `202608`, `202609`. That is your evidence of incremental loading. Screenshot it.
 4. `Month-end checks` now checks `2026-09-30` and `Close month` closes September.
+
+The first time I ran this, `Close month` failed: the Warehouse reads gold through the lakehouse SQL analytics
+endpoint, and that endpoint had not picked up the new September rows yet. A longer Wait would only make that less
+likely. `nb_04` now calls the Fabric REST API (`sqlEndpoints/{id}/refreshMetadata`) after writing its results and
+waits until the sync finishes, so the close always reads current data.
 
 ## Step 7 · Semantic model, Direct Lake (15 min)
 
@@ -171,8 +195,12 @@ Then in the workspace open the model → **Open data model**. Check:
 
 ## Step 8 · Row-level security test (5 min)
 
-Workspace → semantic model **…** → **Security** → pick role `Site - Galway` → **Test as role**. A report
-opens showing Galway only. Screenshot it, then repeat with `Group Finance` (all three sites).
+Workspace → semantic model **…** → **Security**. The five roles are listed there.
+
+**Test as role** does not work on this model: Fabric says *"Test as role does not work with Single Sign-On"*.
+Direct Lake models read the lakehouse with the viewer's own sign-in, and the role test is blocked for those.
+To test for real, add a second user to `Site - Galway` and open the report as that user, or switch the model
+to a fixed-identity cloud connection first.
 For the dynamic role, edit `data/landing/reference/security_user_site.csv` with a real user's e-mail,
 re-upload it, and rerun the pipeline.
 
@@ -181,6 +209,15 @@ re-upload it, and rerun the pipeline.
 Open the semantic model → **Create report** → **Create from scratch**. Build the pages in
 `docs/report_pages.md`. Put the text **"All financial figures are synthetic"** in the header of every page.
 **Save** as `Ardmore Hospital Performance`.
+
+Notes from building it:
+- In the model, set `gold_dim_date[month_label]` → **Sort by column** = `month_start`, or months sort A to Z.
+- Use `month_label` in the month slicer, not `month_name` (that one has no year).
+- A slicer is its own visual type. If the format pane shows Grid and Column headers, you made a table.
+- The web editor did not offer **Edit interactions**, so the 12-month trend line sits on its own page,
+  where the month slicer cannot cut it down to one month.
+
+Built so far: **Executive summary** and **Revenue trend**. The other pages in `report_pages.md` are designed but not built.
 
 ## Step 10 · Azure DevOps (20 min)
 

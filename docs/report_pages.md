@@ -1,7 +1,11 @@
 # Report pages
 
 Report name: **Ardmore Hospital Performance**. Built in the Power BI web editor on the Direct Lake semantic model.
-Every page header shows: *"Synthetic data – Ardmore Health is fictional. All financial figures are synthetic."*
+
+**Status:** two pages are built: **Executive summary** (six KPI cards, month and site slicers) and **Revenue trend**
+(net revenue against budget, last 12 months). Pages 2 to 7 below are designed and every measure they need already
+exists in the model, but I have not built them yet.
+Every page header shows: *"Synthetic data - Ardmore Health is fictional. All financial figures are synthetic."*
 
 Common slicers (top of each page, synced): **Month** (`gold_dim_date[month_label]`, single select), **Site** (`gold_dim_site[site_name]`).
 

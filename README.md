@@ -1,71 +1,125 @@
-# Hospital Revenue & Performance Platform (Microsoft Fabric)
+# Hospital Revenue and Performance Platform (Microsoft Fabric)
 
-A working demonstrator of the BI platform a private hospital group needs: hospital-system exports go into a
-Fabric Lakehouse (bronze, silver, gold); a parameterised pipeline loads only new data, reconciles it and closes the
-month in a Fabric Warehouse; a Direct Lake Power BI model reports activity, revenue cycle, payer mix, service-line
-profitability, budget vs actual and forecast, with row-level security; Azure DevOps tests every change.
+I built this to learn and show the work a hospital BI developer does every month: load data from the hospital
+system, check it, close the month for finance, and report on it in Power BI.
 
-> **All data is synthetic.** "Ardmore Health" and its three sites are fictional. Patients come from Synthea;
-> every money figure is synthetic. The export only imitates a hospital-system flat file. **It is not MEDITECH.**
+Everything runs in Microsoft Fabric. A pipeline loads monthly export files into a lakehouse, cleans them, builds
+a star schema, runs 10 reconciliation checks, and closes the month in a warehouse. A Direct Lake semantic model
+and a Power BI report sit on top.
 
-## The problem it solves
+> **All data is synthetic.** "Ardmore Health" and its three sites (Dublin South, Dublin West, Galway) are made up.
+> Patients come from Synthea and every money figure is invented. The export files only copy the shape of a
+> hospital system extract. **This is not MEDITECH** and no real patient or hospital data is used.
 
-At month end, a hospital's finance figures and activity figures usually come from different extracts, are joined by
-hand in Excel, and rarely agree. This project produces finance and activity from **one** pipeline and **proves**
-they agree (ten reconciliation checks) before the month is released and locked.
+![Executive summary page](docs/screenshots/17_report_executive_summary.png)
 
-## What is in it
+## The problem
 
-| Area | What was built | Where |
+At month end, finance numbers and activity numbers in a hospital often come from different extracts. Someone
+joins them in Excel and they rarely match. Here both come from one pipeline, and the month is only closed after
+10 checks prove the numbers agree.
+
+## What I built
+
+| Part | What it does | Where |
 |---|---|---|
-| Source simulation | Monthly flat-file export (patients, visits, ledger) with manifest control totals; revenue cycle with insurer discounts, denials, patient excess and bad debt | `generator/` |
-| Lakehouse | Bronze (as received, batch log), silver (typed, de-duplicated, pseudonymised, quarantine), gold (star schema) | `notebooks/nb_01`–`nb_03` |
-| Incremental ETL | Batch log + watermark: only new months are processed; reruns replace, never double | `nb_01`, `nb_02` |
-| Month-end | 10 reconciliation checks; Warehouse procedure freezes and locks the month | `nb_04`, `warehouse/` |
-| Forecast | Holt-Winters, 6 months ahead, by site, with an 80% range | `nb_05` |
-| Semantic model | Direct Lake, 23 relationships, 37 DAX measures, 5 security roles, built from code | `semantic_model/`, `nb_06` |
-| Report | 7 pages: executive, debtors, payer mix, service lines, budget/forecast, throughput, month-end control | `docs/report_pages.md` |
-| Pipeline | `pl_daily_load`: parameters, chain, conditional close, failure alert, daily schedule | `docs/fabric_build_guide.md` Step 5 |
-| CI/CD | Azure DevOps YAML: 46 tests (T-SQL parse, notebook sync, model checks, 10 SQL data-quality rules, manifest checks); branch policy | `azure-pipelines.yml`, `tests/` |
-| Governance | Data dictionary, GDPR/HIQA/HSE note, runbook, architecture | `docs/` |
+| Source files | Monthly export of patients, visits and ledger postings, each with a manifest of row counts and totals. Includes insurer discounts, denials, patient excess, payment delays and bad debt. | `generator/` |
+| Lakehouse | Bronze keeps the files as received. Silver types and de-duplicates the data and replaces the MRN with a salted hash. Gold is a star schema. | `notebooks/nb_01` to `nb_03` |
+| Incremental load | A batch log and a watermark, so only new months are loaded. Reruns replace data instead of doubling it. | `nb_01`, `nb_02` |
+| Month-end checks | 10 checks, for example bronze charges equal gold charges, and the ledger adds up to the debtors balance. | `nb_04` |
+| Month-end close | A stored procedure copies the month into the warehouse and locks it. It refuses if any check failed. | `warehouse/` |
+| Forecast | Holt-Winters, 6 months ahead per site, with an 80% range. | `nb_05` |
+| Semantic model | Direct Lake, 14 tables, 23 relationships, 37 DAX measures, 5 security roles. Built from code. | `semantic_model/`, `nb_06` |
+| Report | Executive summary and revenue trend pages. | `docs/report_pages.md` |
+| Pipeline | `pl_daily_load`: parameters, retries, a condition that only closes the month if checks pass, a phone alert on failure, daily at 06:00. | `docs/fabric_build_guide.md` |
+| Tests | 46 tests: SQL data quality rules in DuckDB, manifest checks, a check that no personal data reaches silver, T-SQL parsing. | `tests/`, `azure-pipelines.yml` |
+| Documents | Data dictionary, GDPR and HIQA note, runbook, architecture, build guide. | `docs/` |
 
-## Results on the synthetic data (33 months, Jan 2024 – Sep 2026)
+## What I tested in Fabric
+
+- A full pipeline run, all steps green, June 2026 closed. ([screenshot](docs/screenshots/09_pipeline_run_success.png))
+- A failure on purpose with a batch that does not exist. The pipeline stopped and my phone got the alert with the
+  same run ID. ([run](docs/screenshots/10_pipeline_failure_run.png), [phone](docs/screenshots/11_phone_alert.jpeg))
+- An incremental load. I added three new months and the next run loaded only those three.
+  ([screenshot](docs/screenshots/13_incremental_load.png))
+- September 2026 then closed automatically next to June. ([screenshot](docs/screenshots/14_close_status_september.png))
+- The daily 06:00 schedule. ([screenshot](docs/screenshots/12_pipeline_schedule.png))
+
+## Results on the synthetic data (January 2024 to September 2026)
 
 | Measure | Value |
 |---|---|
-| Patients / visits / ledger postings | 5,179 / ~68,000 / ~436,000 |
-| Inpatient stays · average length of stay · 30-day readmission rate | 1,281 · 5.1 nights · 22.6% |
-| Net revenue per year (synthetic) | about €48m |
-| Debtors at 30 Sep 2026 · debtor days · write-off rate | €6.0m · 47 days · 1.7% |
-| Month-end checks (Jun and Sep 2026 tested) | 10 of 10 pass; bronze-to-gold charges reconcile to the cent |
+| Patients / visits / ledger postings | 5,179 / 68,453 / 436,005 |
+| Inpatient stays, average length of stay | 1,281 stays, 5.1 nights |
+| Net revenue | about €4m a month, €48m a year |
+| September 2026 | budget variance -6.8%, contribution margin 13.3%, debtor days 47 |
+| Month-end checks | 10 of 10 pass for June and September 2026 |
+
+The readmission rate for the latest month always looks low (5.1% for September). A discharge needs 30 more days
+before we know if the patient came back, and the data stops on 30 September.
+
+## Problems I hit and how I fixed them
+
+- **Notebooks failed at random after about 20 seconds.** On the trial capacity, a notebook that starts right after
+  another one often cannot get a Spark session yet (error 430). Each notebook step now retries 3 times, 3 minutes apart.
+- **The month close read old data.** The warehouse reads gold through the lakehouse SQL endpoint, which syncs with
+  a delay. A 60 second wait was not enough for September. The checks notebook now asks Fabric to sync the endpoint
+  through the REST API and waits until it is done.
+- **The phone alert never arrived.** The connection box held the URL as text instead of a saved connection.
+  I only found it because I tested the failure path on purpose.
+- **Row-level security could not be tested with "Test as role".** Fabric blocks it on Direct Lake models that use
+  single sign-on. The roles are defined and listed ([screenshot](docs/screenshots/15_rls_roles.png)). To test them
+  properly I would add a second user to a role or switch the model to a fixed identity connection.
+
+More detail is in [the runbook](docs/runbook.md).
+
+## Not done yet
+
+- Report pages 2 to 7 (debtors, payer mix, service lines, budget and forecast, throughput, month-end control).
+  They are designed in `docs/report_pages.md` and the measures exist.
+- Running the tests in Azure DevOps. The pipeline file is in the repo and the 46 tests pass locally.
+- Branch policies and Fabric Git integration.
+- Copilot. It is not available on trial capacities. My notes on where I would and would not use it are in
+  `docs/copilot_answer.md`.
 
 ## Repository layout
 
 ```
-generator/          build_staging.py: Synthea output -> monthly hospital-style export (+ budget)
-data/landing/       export batches 2024-01 .. 2026-06 + reference files (upload to Fabric)
-data/landing_next/  batches 2026-07 .. 2026-09 (upload later to show incremental loading)
-notebooks/          nb_01..nb_06 as .py (source) and fabric/*.ipynb (import into Fabric)
+generator/          build_staging.py: Synthea output to monthly export files and a budget
+data/landing/       export batches 2024-01 to 2026-06 and reference files
+data/landing_next/  batches 2026-07 to 2026-09, used to test the incremental load
+notebooks/          nb_00 to nb_06 as .py files, and fabric/*.ipynb to import into Fabric
 warehouse/          T-SQL: fin schema, close procedure, finance views
-semantic_model/     model_spec.py: tables, relationships, measures, roles (single source of truth)
-tests/              pytest + DuckDB data-quality rules (run in CI)
-tools/              build_notebooks.py, run_notebooks_locally.py (test notebooks without Fabric)
-docs/               build guide, architecture, data dictionary, semantic model, report pages, runbook,
-                    governance note, Copilot answer
-azure-pipelines.yml CI pipeline
+semantic_model/     model_spec.py: tables, relationships, measures and roles in one place
+tests/              pytest and DuckDB data quality rules
+tools/              build_notebooks.py, run_notebooks_locally.py
+docs/               build guide, architecture, data dictionary, semantic model, report pages,
+                    runbook, governance note, Copilot notes, screenshots
 ```
 
-## How to run
+## How to run it
 
-1. **Fabric:** follow `docs/fabric_build_guide.md` (about 90 minutes).
-2. **Tests locally:** `pip install -r requirements-ci.txt && pytest tests`
+1. **In Fabric:** follow `docs/fabric_build_guide.md`.
+2. **Tests on your machine:** `pip install -r requirements-ci.txt` then `pytest tests`
 3. **Notebooks without Fabric** (Python 3.11, `pip install pyspark==3.5.5 pandas statsmodels pyarrow`):
    `python tools/run_notebooks_locally.py --landing data/landing --work /tmp/lh nb_01 nb_02 nb_03 nb_04 nb_05`
-4. **Regenerate the data** (needs Synthea CSV output):
-   `python generator/build_staging.py --synthea <synthea>/output/csv --out data/landing`
+4. **New data** (needs Synthea CSV output): `python generator/build_staging.py --synthea <synthea>/output/csv --out data/landing`
+
+## Screenshots
+
+All of them are in [docs/screenshots](docs/screenshots/README.md).
+
+| | |
+|---|---|
+| ![Workspace](docs/screenshots/01_workspace_items.png) | ![Pipeline](docs/screenshots/08_pipeline_canvas.png) |
+| Workspace | Pipeline |
+| ![Month-end checks](docs/screenshots/03_monthend_checks_pass.png) | ![Close status](docs/screenshots/14_close_status_september.png) |
+| Month-end checks | Months closed in the warehouse |
+| ![Semantic model](docs/screenshots/07_semantic_model_direct_lake.png) | ![Revenue trend](docs/screenshots/18_report_revenue_trend.png) |
+| Semantic model | Revenue against budget |
 
 ## Data sources and licences
 
-- Synthea synthetic patient generator, MITRE, Apache-2.0; generated data is public domain.
-- Insurer weighting: Health Insurance Authority, *Market Report 2025* (Vhi 48%, Laya 28%, Irish Life Health 20%, Level 1%).
+- Synthea synthetic patient generator by MITRE, Apache 2.0. The generated data is public domain.
+- Insurer shares follow the Health Insurance Authority Market Report 2025 (Vhi 48%, Laya 28%, Irish Life Health 20%, Level 1%).
 - No MIMIC data is used.

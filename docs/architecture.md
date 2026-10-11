@@ -24,7 +24,7 @@
    schema and locks the period, so reported figures never change after sign-off.
 8. **Forecast** (`nb_05_forecast`). Six months of net revenue per site.
 9. **Semantic model** (`nb_06_semantic_model`). Direct Lake on the gold tables, 37 measures, five security roles.
-10. **Report.** Seven pages, see `report_pages.md`.
+10. **Report.** Two pages built (executive summary, revenue trend), five more designed. See `report_pages.md`.
 
 ## Design decisions (and why)
 

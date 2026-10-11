@@ -18,11 +18,13 @@ Who this is for: whoever looks after `pl_daily_load` when it fails, or runs mont
 |---|---|---|---|
 | Bronze ingest | `rejected - files do not match manifest` | Extract incomplete or changed after the manifest was written | Ask the source team to resend the batch. Delete the bad folder from landing, upload the new one, rerun with `p_batch_id` = that batch. |
 | Bronze ingest | `not found in Files/landing/his_export` | Wrong `p_batch_id` | Rerun with `p_batch_id` = `auto`. |
-| Any notebook | `Spark session` / `capacity` / `throttled` | Capacity busy or paused | Wait 15 minutes and rerun. If it is a paid capacity, check it is not paused. |
+| Any notebook, after about 20 seconds | `430` / `TooManyRequestsForCapacity` / `Spark session` | Capacity busy (the last session has not let go of its cores) | Each notebook activity retries 3 times, 3 minutes apart, so this usually fixes itself. If all retries fail, stop open notebook sessions and rerun. On a paid capacity, check it is not paused. |
 | Silver conform | `table or view not found: bronze_…` | Bronze never ran successfully | Run `nb_01` first. |
 | Month-end checks | `Overall: FAIL` (If condition goes to False) | A reconciliation check failed | Open `gold_monthend_check` for the period; see the section below. |
 | Close month | `already closed and locked` | Someone ran it without `force` | Expected for a past month. Only rerun with `@force = 1` if finance agreed to reopen it. |
-| Close month | `Invalid object name 'lh_hospital.dbo…'` | Lakehouse SQL endpoint not yet in sync | Lakehouse → SQL analytics endpoint → **Refresh**, wait a minute, rerun the activity. |
+| Close month | `No month-end checks found for this period` or `Invalid object name 'lh_hospital.dbo…'` | Lakehouse SQL endpoint not yet in sync with the new gold tables | `nb_04` forces this sync now, so it should not happen. If it does: lakehouse → SQL analytics endpoint → **Refresh**, then rerun. |
+| Checks passed (If) | `The function 'bool' was invoked with a parameter that is not valid` | The If expression was saved as plain text | Re-enter it through **Add dynamic content**. The box must turn green. |
+| Alert on failure | `Invalid datasourceObjectId` | The Web activity connection box holds typed text, not a saved connection | Clear the box and pick the `ntfy-alerts` connection from the dropdown. |
 
 ## When a month-end check fails
 
@@ -48,6 +50,13 @@ Who this is for: whoever looks after `pl_daily_load` when it fails, or runs mont
 
 1. Run `nb_02_silver_conform` with `full_refresh = True` (drops silver and the watermark).
 2. Run `nb_03`, `nb_04`, `nb_05`. Bronze is the audit copy and is never dropped.
+
+## Lessons from the first runs
+
+- On a trial capacity, notebooks that run one after another fail at random unless they retry. Keep the retries.
+- Before reading gold through the SQL endpoint, ask Fabric to sync it and wait for the answer. A fixed Wait of 60 seconds was not enough.
+- Text boxes in pipeline activities look the same whether they hold text or an expression. Green means expression.
+- Test a failure path on purpose (`p_batch_id = 209901`) before trusting the alert. Mine failed silently the first time.
 
 ## Contacts (fill in)
 
