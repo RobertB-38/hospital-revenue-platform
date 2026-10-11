@@ -32,10 +32,10 @@ joins them in Excel and they rarely match. Here both come from one pipeline, and
 | Semantic model | Direct Lake, 14 tables, 23 relationships, 37 DAX measures, 5 security roles. Built from code. | `semantic_model/`, `nb_06` |
 | Report | Executive summary and revenue trend pages. | `docs/report_pages.md` |
 | Pipeline | `pl_daily_load`: parameters, retries, a condition that only closes the month if checks pass, a phone alert on failure, daily at 06:00. | `docs/fabric_build_guide.md` |
-| Tests | 46 tests: SQL data quality rules in DuckDB, manifest checks, a check that no personal data reaches silver, T-SQL parsing. | `tests/`, `azure-pipelines.yml` |
+| Tests | 46 tests: SQL data quality rules in DuckDB, manifest checks, a check that no personal data reaches silver, T-SQL parsing. They run in Azure DevOps on every push to main. | `tests/`, `azure-pipelines.yml` |
 | Documents | Data dictionary, GDPR and HIQA note, runbook, architecture, build guide. | `docs/` |
 
-## What I tested in Fabric
+## What I tested
 
 - A full pipeline run, all steps green, June 2026 closed. ([screenshot](docs/screenshots/09_pipeline_run_success.png))
 - A failure on purpose with a batch that does not exist. The pipeline stopped and my phone got the alert with the
@@ -44,6 +44,8 @@ joins them in Excel and they rarely match. Here both come from one pipeline, and
   ([screenshot](docs/screenshots/13_incremental_load.png))
 - September 2026 then closed automatically next to June. ([screenshot](docs/screenshots/14_close_status_september.png))
 - The daily 06:00 schedule. ([screenshot](docs/screenshots/12_pipeline_schedule.png))
+- The 46 tests in Azure DevOps. The pipeline ran green on commit `825f9f7` with all 46 passing.
+  ([tests](docs/screenshots/24_devops_tests_passed.png), [run](docs/screenshots/24b_devops_run_summary.png))
 
 ## Results on the synthetic data (January 2024 to September 2026)
 
@@ -77,8 +79,8 @@ More detail is in [the runbook](docs/runbook.md).
 
 - Report pages 2 to 7 (debtors, payer mix, service lines, budget and forecast, throughput, month-end control).
   They are designed in `docs/report_pages.md` and the measures exist.
-- Running the tests in Azure DevOps. The pipeline file is in the repo and the 46 tests pass locally.
-- Branch policies and Fabric Git integration.
+- A branch policy on main so changes can only arrive through a pull request that passes the tests.
+- Fabric Git integration.
 - Copilot. It is not available on trial capacities. My notes on where I would and would not use it are in
   `docs/copilot_answer.md`.
 
@@ -117,6 +119,8 @@ All of them are in [docs/screenshots](docs/screenshots/README.md).
 | Month-end checks | Months closed in the warehouse |
 | ![Semantic model](docs/screenshots/07_semantic_model_direct_lake.png) | ![Revenue trend](docs/screenshots/18_report_revenue_trend.png) |
 | Semantic model | Revenue against budget |
+| ![DevOps tests](docs/screenshots/24_devops_tests_passed.png) | ![DevOps run](docs/screenshots/24b_devops_run_summary.png) |
+| Tests in Azure DevOps | Green pipeline run |
 
 ## Data sources and licences
 
