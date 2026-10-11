@@ -135,12 +135,13 @@ truly frozen once the next month has been closed.
 no mailbox, so the demo uses a free push notification instead (ntfy.sh, no account needed). In a real
 hospital tenant you would swap this one activity for the Office 365 Outlook or Teams activity.
 
-1. On your phone, install the **ntfy** app → **+** → subscribe to a topic with a long random name, e.g. `ardmore-bi-7f3k9q2x`.
+1. On your phone, install the **ntfy** app → **+** → subscribe to a topic with a long random name that only you know. Treat it like a password: anyone who knows
+   it can read and send messages on it, so keep it out of the repo and out of screenshots.
 2. In the pipeline: Activities → **Web** → name `Alert on failure`. Settings:
    - Connection: open the dropdown → **+ New** → **Web v2** → Base URL `https://ntfy.sh` → name `ntfy-alerts` →
      Authentication **Anonymous** → **Connect**. Pick the connection from the dropdown. Do not type the URL into the
      box: then it turns green and the run fails with *"Invalid datasourceObjectId: https://ntfy.sh"*.
-   - Relative URL: `ardmore-bi-7f3k9q2x` (your topic) · Method: **POST**
+   - Relative URL: `<your-ntfy-topic>` · Method: **POST**
    - Body: `@concat('pl_daily_load FAILED. Run ', pipeline().RunId)`
    - Headers: `Content-Type` = `text/plain`
 3. Connect `Month-end checks` → `Alert on failure` **twice**: once with the red cross (**On fail**) and once with the grey arrow (**On skip**).
